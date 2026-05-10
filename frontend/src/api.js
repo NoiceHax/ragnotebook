@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = '/api';
+const API_BASE = 'https://your-backend-app.onrender.com/api';
 
 /**
  * Upload a PDF file for processing.
