@@ -20,19 +20,19 @@ import config
 from pdf_processor import TextChunk
 
 
-# --- Embedding Model ---
-_embed_model = None
+# --- Embedding Model (Gemini) ---
+_gemini_configured = False
 
-
-def _get_embed_model():
-    """Lazy-initialize the sentence-transformers embedding model."""
-    global _embed_model
-    if _embed_model is None:
-        from sentence_transformers import SentenceTransformer
-        print(f"[INFO] Loading embedding model: {config.EMBEDDING_MODEL}...")
-        _embed_model = SentenceTransformer(config.EMBEDDING_MODEL)
-        print(f"[INFO] Embedding model loaded. Dimension: {_embed_model.get_sentence_embedding_dimension()}")
-    return _embed_model
+def _configure_gemini():
+    """Lazy-configure Google Gemini API."""
+    global _gemini_configured
+    if not _gemini_configured:
+        import google.generativeai as genai
+        if not config.GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY is missing in environment variables.")
+        genai.configure(api_key=config.GEMINI_API_KEY)
+        _gemini_configured = True
+        print(f"[INFO] Configured Gemini for embeddings using {config.EMBEDDING_MODEL}.")
 
 
 # --- ChromaDB Client ---
@@ -63,24 +63,30 @@ def _get_collection(document_id: str):
 
 
 def _embed_texts(texts: list[str]) -> list[list[float]]:
-    """Embed a batch of texts using sentence-transformers.
-
-    Args:
-        texts: List of text strings to embed.
-
-    Returns:
-        List of embedding vectors.
-    """
-    model = _get_embed_model()
-    embeddings = model.encode(texts, show_progress_bar=False, normalize_embeddings=True)
-    return embeddings.tolist()
+    """Embed a batch of texts using Google Gemini."""
+    _configure_gemini()
+    import google.generativeai as genai
+    
+    # Gemini embed_content works with a list of strings
+    result = genai.embed_content(
+        model=config.EMBEDDING_MODEL,
+        content=texts,
+        task_type="retrieval_document"
+    )
+    return result['embedding']
 
 
 def _embed_query(query: str) -> list[float]:
-    """Embed a single query using sentence-transformers."""
-    model = _get_embed_model()
-    embedding = model.encode(query, normalize_embeddings=True)
-    return embedding.tolist()
+    """Embed a single query using Google Gemini."""
+    _configure_gemini()
+    import google.generativeai as genai
+    
+    result = genai.embed_content(
+        model=config.EMBEDDING_MODEL,
+        content=query,
+        task_type="retrieval_query"
+    )
+    return result['embedding']
 
 
 def store_chunks(chunks: list[TextChunk]) -> int:

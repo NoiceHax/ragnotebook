@@ -8,12 +8,15 @@ load_dotenv()
 # --- Groq API ---
 GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
 
+# --- Gemini API ---
+GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+
 # --- Model Configuration ---
 GENERATION_MODEL: str = "llama-3.3-70b-versatile"
 
 # --- Embedding Configuration ---
-# Using local sentence-transformers model (free, no API key needed)
-EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+# Using Google Gemini for free, instant embeddings
+EMBEDDING_MODEL: str = "models/text-embedding-004"
 
 # --- Chunking Configuration ---
 CHUNK_SIZE: int = 800        # characters per chunk
