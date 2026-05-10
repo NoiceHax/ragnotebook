@@ -71,7 +71,8 @@ def _embed_texts(texts: list[str]) -> list[list[float]]:
     result = genai.embed_content(
         model=config.EMBEDDING_MODEL,
         content=texts,
-        task_type="retrieval_document"
+        task_type="retrieval_document",
+        output_dimensionality=768
     )
     return result['embedding']
 
@@ -84,7 +85,8 @@ def _embed_query(query: str) -> list[float]:
     result = genai.embed_content(
         model=config.EMBEDDING_MODEL,
         content=query,
-        task_type="retrieval_query"
+        task_type="retrieval_query",
+        output_dimensionality=768
     )
     return result['embedding']
 

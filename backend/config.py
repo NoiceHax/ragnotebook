@@ -16,7 +16,7 @@ GENERATION_MODEL: str = "llama-3.3-70b-versatile"
 
 # --- Embedding Configuration ---
 # Using Google Gemini for free, instant embeddings
-EMBEDDING_MODEL: str = "models/text-embedding-004"
+EMBEDDING_MODEL: str = "models/gemini-embedding-001"
 
 # --- Chunking Configuration ---
 CHUNK_SIZE: int = 800        # characters per chunk
