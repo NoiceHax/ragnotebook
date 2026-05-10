@@ -15,21 +15,20 @@ ChromaDB provides:
 """
 
 import os
-import chromadb
-from sentence_transformers import SentenceTransformer
 
 import config
 from pdf_processor import TextChunk
 
 
 # --- Embedding Model ---
-_embed_model: SentenceTransformer | None = None
+_embed_model = None
 
 
-def _get_embed_model() -> SentenceTransformer:
+def _get_embed_model():
     """Lazy-initialize the sentence-transformers embedding model."""
     global _embed_model
     if _embed_model is None:
+        from sentence_transformers import SentenceTransformer
         print(f"[INFO] Loading embedding model: {config.EMBEDDING_MODEL}...")
         _embed_model = SentenceTransformer(config.EMBEDDING_MODEL)
         print(f"[INFO] Embedding model loaded. Dimension: {_embed_model.get_sentence_embedding_dimension()}")
@@ -37,19 +36,20 @@ def _get_embed_model() -> SentenceTransformer:
 
 
 # --- ChromaDB Client ---
-_chroma_client: chromadb.PersistentClient | None = None
+_chroma_client = None
 
 
-def _get_chroma() -> chromadb.PersistentClient:
+def _get_chroma():
     """Lazy-initialize the ChromaDB persistent client."""
     global _chroma_client
     if _chroma_client is None:
+        import chromadb
         os.makedirs(config.CHROMA_DIR, exist_ok=True)
         _chroma_client = chromadb.PersistentClient(path=config.CHROMA_DIR)
     return _chroma_client
 
 
-def _get_collection(document_id: str) -> chromadb.Collection:
+def _get_collection(document_id: str):
     """Get or create a ChromaDB collection for a document."""
     client = _get_chroma()
     # Each document gets its own collection for clean isolation
